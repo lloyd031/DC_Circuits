@@ -154,8 +154,21 @@ public class WorkspaceGUI extends JFrame {
 				}
 			}else
 			{
-				selectedComp.edit(false);
-				selectedComp=null;
+				if(comp[curri][currj]==null)
+				{
+					selectedComp.edit(false);
+					selectedComp=null;
+				}else if(comp[curri][currj]!=selectedComp)
+				{
+					selectedComp.edit(false);
+					selectedComp=comp[curri][currj];
+					selectedComp.edit(true);
+				}else 
+				{
+					component=selectedComp.getType();
+					comp[curri][currj]=null;
+					selectedComp=null;
+				}
 			}
 		}
 
