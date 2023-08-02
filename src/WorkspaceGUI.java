@@ -9,15 +9,17 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 public class WorkspaceGUI extends JFrame {
 	static Component comp[][]= new Component[27][36];
+	static LinkedList<Component> complist=new LinkedList<Component>();
 	public int mx=-100;
 	public int my=-100;
 	public int curri,currj;
 	Component selectedComp=null;
 	public String component;
 	BufferedImage componentImg=null;
+	JLabel componentlbl ;
      public WorkspaceGUI()
      { this.setTitle("DC-Circuit Analysis");
-    	 this.setSize(916,714);
+    	 this.setSize(1056,714);
     	 this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	 this.setVisible(true);
     	 this.setResizable(false);
@@ -47,18 +49,44 @@ public class WorkspaceGUI extends JFrame {
     	 gBtn.setLocation(360,650);
     	 gBtn.setSize(130, 25);
     	 this.add(gBtn);
+    	 JLabel panel = new JLabel("Circuits Diagram");
+    	 panel.setForeground(Color.WHITE);
+    	 panel.setSize(130, 25);
+    	 panel.setLocation(910,10);
+    	 this.add(panel);
     	 
     	 
      }
      
      public class BreadBoard extends JPanel
      {
+    	 
     	 public void paintComponent(Graphics g)
     	 {
     		 Graphics2D g2d=(Graphics2D)g;
-    		 g2d.setColor(Color.decode("#161b22"));
+    		 g2d.setColor(Color.decode("#21262d"));
     		 g2d.fillRect(0, 0,900, 675);
-    		 //
+    		 g2d.setColor(Color.decode("#161b22"));
+    		 g2d.fillRect(900, 0,150, 675);
+    		 for(int i=0; i<complist.size(); i++)
+    		 {
+    			 g.setColor(Color.white);
+    			 if(complist.get(i)==selectedComp)
+    			 {
+    				g.drawRect(932, i*20+45, 100, 20); 
+    			 }
+    			 if(i==0)
+    			 {
+    				g.fillRect(913, i*20+35, 4, 4);
+    			 }
+    			 Font stringFont = new Font( "SansSerif", Font.PLAIN, 16 );
+    			 
+    			 g2d.setFont(stringFont);
+    			 g.fillRect(915, i*20+35, 1+1/2, 20);
+    			 g.fillRect(915, i*20+55, 10 , 1+1/2);
+    			 g.fillRect(925, i*20+53, 4, 4);
+    			 g.drawString(complist.get(i).getType(), 940, i*20+60);
+    		 }
     		 
     		 for(int i=0; i<27;i++)
     		 {
@@ -72,12 +100,21 @@ public class WorkspaceGUI extends JFrame {
 	    						 
 	    							 drawComponent(comp[i][j].getType());
 	    							 g.drawImage(componentImg, j*25-23 , i*25-50/2+1,50,50,null);
-	    							 if(comp[i][j].editing()==true)
-	    						     {
-	    						    	 g.setColor(Color.WHITE);
-	    						    	 g.drawRect(j*25-75/2, i*25-75/2, 75, 75);
-	    						     }
+	    							 if(selectedComp!=null)
+	    							 {
+	    								 if(comp[i][j]==selectedComp)
+		    						     {
+	    									 
+		    								 
+		    						    	 g.setColor(Color.WHITE);
+		    						    	 g.drawRect(j*25-75/2, i*25-75/2, 75, 75);
+		    						    	 
+		    						     }
+	    							 }
+	    							 
 	    					 }
+	    					 
+	    					 
     						 if(mx>=j*25-25/2+3 && mx<=j*25+25/2+3 && my>= i*25-25/2+3 && my<i*25+25/2+3)
             				 {
     							 currj=j;
@@ -101,8 +138,9 @@ public class WorkspaceGUI extends JFrame {
     				 }
         		 }
     		 }
-    		
+    		 
     	 }
+    	 
      }
      
      public void drawComponent(String comp)
@@ -149,24 +187,24 @@ public class WorkspaceGUI extends JFrame {
 					if(comp[curri][currj]!=null)
 					{
 						selectedComp=comp[curri][currj];
-						comp[curri][currj].edit(true);
 					}
 				}
 			}else
 			{
 				if(comp[curri][currj]==null)
 				{
-					selectedComp.edit(false);
+					
 					selectedComp=null;
 				}else if(comp[curri][currj]!=selectedComp)
 				{
-					selectedComp.edit(false);
+					
 					selectedComp=comp[curri][currj];
-					selectedComp.edit(true);
 				}else 
 				{
 					component=selectedComp.getType();
+					complist.remove(comp[curri][currj]);
 					comp[curri][currj]=null;
+					
 					selectedComp=null;
 				}
 			}
@@ -205,7 +243,7 @@ public class WorkspaceGUI extends JFrame {
 			{
 				Component c=new Component(component);
 				comp[i][j]=c;
-				c.edit(true);
+				complist.add(c);
 				selectedComp=c;
 				component=null;
 			}

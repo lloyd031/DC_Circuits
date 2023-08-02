@@ -15,14 +15,7 @@ public class Component {
    {
 	   this.type=type;
    }
-   void edit(boolean e)
-   {
-	   this.modify=e;
-   }
-   boolean editing()
-   {
-	   return this.modify;
-   }
+   
   void  setResistance( double resistance)
    {
 	  this.resistance=resistance;
