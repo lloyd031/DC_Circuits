@@ -10,13 +10,14 @@ public class Component {
    private double[] kvleqn;
    private double constant;
    private int index;
+   private String name;
    private boolean modify=false;
    Component(String type)
    {
 	   this.type=type;
    }
    
-  void  setResistance( double resistance)
+   void  setResistance( double resistance)
    {
 	  this.resistance=resistance;
    }
@@ -24,6 +25,36 @@ public class Component {
   {
 	  return this.resistance;
   }
+  void  setName( String name)
+  {
+	  this.name=name;
+  }
+ String getName()
+ {
+	 if(this.getType()=="V-source")
+	 {
+		 if(this.name==null)
+		 {
+			return "V"; 
+		 }else 
+		 {
+			 return this.name;
+		 }
+	 } else if(this.getType()=="Resistor")
+	 {
+		 if(this.name==null)
+		 {
+			return "R"; 
+		 }else 
+		 {
+			 return this.name;
+		 }
+	 }else
+	 {
+		 return null;
+	 }
+	  
+ }
   
   void  setVoltage(double voltage)
   {
