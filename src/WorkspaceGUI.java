@@ -332,52 +332,36 @@ public class WorkspaceGUI extends JFrame {
 						setValue();
 					}else if(comp[curri][currj-1]!=null)
 					{
-						if(comp[curri][currj-1].getAngle()==0)
+						if((comp[curri][currj-1].getAngle()==0 && comp[curri][currj-1].getHead()==null)  || (comp[curri][currj-1].getAngle()==180 && comp[curri][currj-1].getTail()==null))
 						{
-							if(comp[curri][currj-1].getHead()==null)
+							if(connComp[0]==null)
 							{
-								if(connComp[0]==null)
-								{
-									pol[0]="head";
-									connComp[0]=comp[curri][currj-1];
-									System.out.println("connecting1");
-								}else 
-								{
-									if(comp[curri][currj-1]!=connComp[0])
-									{
-										connComp[1]=comp[curri][currj-1];
-										pol[1]="head";
-										System.out.println("connecting2");
-										connectComponent(connComp[0],connComp[1]);
-										connComp[0]=null;
-										connComp[1]=null;
-									}
-								}
+								connComp[0]=comp[curri][currj-1];
+								pol[0]=(comp[curri][currj-1].getAngle()==0)?"head":"tail";
+								System.out.println(pol[0]);
+							}else
+							{
+								connComp[1]=comp[curri][currj-1];
+								pol[1]=(comp[curri][currj-1].getAngle()==0)?"head":"tail";
+								System.out.println(pol[1]);
+								connectComponent(connComp[0],connComp[1]);
 							}
 						}
-					}else if(comp[curri][currj+1]!=null)
+					} else if(comp[curri][currj+1]!=null)
 					{
-						if(comp[curri][currj+1].getAngle()==0)
+						if((comp[curri][currj+1].getAngle()==0 && comp[curri][currj+1].getTail()==null)  || (comp[curri][currj+1].getAngle()==180 && comp[curri][currj+1].getHead()==null))
 						{
-							if(comp[curri][currj+1].getTail()==null)
+							if(connComp[0]==null)
 							{
-								if(connComp[0]==null)
-								{
-									pol[0]="tail";
-									connComp[0]=comp[curri][currj+1];
-									System.out.println("connecting1");
-								}else 
-								{
-									if(comp[curri][currj+1]!=connComp[0])
-									{
-										connComp[1]=comp[curri][currj+1];
-										pol[1]="tail";
-										System.out.println("connecting2");
-										connectComponent(connComp[0],connComp[1]);
-										connComp[0]=null;
-										connComp[1]=null;
-									}
-								}
+								connComp[0]=comp[curri][currj+1];
+								pol[0]=(comp[curri][currj+1].getAngle()==0)?"tail":"head";
+								System.out.println(pol[0]);
+							}else
+							{
+								connComp[1]=comp[curri][currj+1];
+								pol[1]=(comp[curri][currj+1].getAngle()==0)?"tail":"head";
+								System.out.println(pol[1]);
+								connectComponent(connComp[0],connComp[1]);
 							}
 						}
 					}
@@ -452,6 +436,8 @@ public class WorkspaceGUI extends JFrame {
     	{
     		b.setTail(wire);
     	}
+    	connComp[0]=null;
+    	connComp[1]=null;
     	pol[0]=null;
     	pol[1]=null;
     }
