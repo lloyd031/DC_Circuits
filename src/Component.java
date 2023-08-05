@@ -12,6 +12,7 @@ public class Component {
    private int index;
    private String name;
    private boolean modify=false;
+   private int angle;
    Component(String type)
    {
 	   this.type=type;
@@ -24,6 +25,14 @@ public class Component {
   double getResistance()
   {
 	  return this.resistance;
+  }
+  void setAngle(int angle)
+  {
+	  this.angle=angle;
+  }
+  int getAngle()
+  {
+	  return this.angle;
   }
   void  setName( String name)
   {

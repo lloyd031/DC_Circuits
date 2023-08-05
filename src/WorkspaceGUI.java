@@ -13,13 +13,17 @@ public class WorkspaceGUI extends JFrame {
 	public int mx=-100;
 	public int my=-100;
 	public int curri,currj;
+	public int currAngle=0;
 	Component selectedComp=null;
 	public String component;
 	BufferedImage componentImg=null;
 	BufferedImage properiesImg=null;
 	JLabel componentlbl ;
-	String[] propertyname= {"Type","name","branch", "current","voltage","Resis..."};
+	Component connComp[]=new Component[2];
+	String pol[]=new String[2];
+	String[] propertyname= {"Type","name","Angle","branch", "current","voltage","Resis..."};
 	LinkedList<JTextField> vallist=new LinkedList<JTextField>();
+	JLabel rotate;
 	public WorkspaceGUI()
      { this.setTitle("DC-Circuit Analysis");
     	 this.setSize(1056,714);
@@ -72,8 +76,17 @@ public class WorkspaceGUI extends JFrame {
 			 vallist.add(val);
 			 this.add(val);
     	 }
-    	 vallist.get(2).disable();
-    	 
+    	 vallist.get(2).setEditable(false);
+    	 vallist.get(3).disable();
+    	 rotate=new JLabel("R");
+    	 rotate.setForeground(Color.white);
+    	 ImageIcon rotateIcon = new ImageIcon(getClass().getResource("rotate.png"));
+    	 rotate.setIcon(rotateIcon);
+    	 rotate.setSize(24,24);
+    	 rotate.setLocation(-100,-100);
+    	 rotateClick rclick= new rotateClick();
+    	 rotate.addMouseListener(rclick);
+    	 this.add(rotate);
      }
      
      public class BreadBoard extends JPanel
@@ -101,7 +114,7 @@ public class WorkspaceGUI extends JFrame {
     	          				 curri=i;
     							if(component!=null)
     							{
-    							 drawComponent(component);
+    							 drawComponent(component,currAngle);
            						 g.drawImage(componentImg, j*25-23 , i*25-50/2+1,50,50,null);
     							
     							}
@@ -116,18 +129,27 @@ public class WorkspaceGUI extends JFrame {
     						 if(comp[i][j]!=null)
 	    					 {
 	    						 
-	    							 drawComponent(comp[i][j].getType());
+    							 if(comp[i][j]==selectedComp)
+		    						    {
+	 								 		currAngle=comp[i][j].getAngle();
+	 								 		rotate.setLocation(j*25+75/2+5, i*25+20/2+6);
+	 								 		g.setColor(Color.gray);
+	 								 		g.drawRect(j*25-25, i*25-25, 52, 52);
+		    						    	 
+		    						    }
+	    							 drawComponent(comp[i][j].getType(),comp[i][j].getAngle());
 	    							 g.drawImage(componentImg, j*25-23 , i*25-50/2+1,50,50,null);
 	    							 String val=(comp[i][j].getType()=="Resistor")?String.valueOf(comp[i][j].getResistance()+" Ω"):String.valueOf(comp[i][j].getVoltage()+" V");
 	    							 g.setColor(Color.decode("#77bdfb"));
 	    							 Font stringFont = new Font( "SansSerif", Font.PLAIN, 12 );
-	    							 g.drawString(comp[i][j].getName()+" = "+ val, j*25-25, i*25-24);
-	    							 if(comp[i][j]==selectedComp)
-		    						    {
-	    								 g.setColor(Color.WHITE);
-		    						     g.drawRect(j*25-75/2, i*25-50/2+6, 75, 35);
-		    						    	 
-		    						    }
+	    							 if(comp[i][j].getAngle()==0 || comp[i][j].getAngle()==180)
+	    							 {
+	    								 g.drawString(comp[i][j].getName()+" = "+ val, j*25-25, i*25-28);
+	    							 }else
+	    							 {
+	    								 g.drawString(comp[i][j].getName()+" = "+ val, j*25+35, i*25+25/2-10);
+	    							 }
+	    							 
 	    							 
 	    							 
 	    					 }
@@ -153,7 +175,7 @@ public class WorkspaceGUI extends JFrame {
     		 g.setColor(Color.decode("#21262d"));
     		 g.fillRect(900, 430,100, 25);
     		 //draw property icon
-    		 drawComponent("properties");
+    		 drawComponent("properties",0 );
     		 g.setColor(Color.decode("#89929b"));
     		 g.drawRect(905, 460, 130, 210);
     		 g.fillRect(965, 460, 1, 210);
@@ -179,7 +201,7 @@ public class WorkspaceGUI extends JFrame {
     		 g.fillRect(900, 0,150, 25);
     		 
     		 //draw icon
-    		 drawComponent("energy");
+    		 drawComponent("energy",0);
     		 g.drawImage(componentImg, 905 , 5,14,14,null);
     		 Font stringFont = new Font( "SansSerif", Font.PLAIN, 14 );
     		 
@@ -204,10 +226,22 @@ public class WorkspaceGUI extends JFrame {
     		 }
     	 }
      }
-     public void drawComponent(String comp)
+     public void drawComponent(String comp,int compAngle)
      {
     	 try {
-				componentImg=ImageIO.read(getClass().getResourceAsStream(comp+".png"));
+				if(comp!="Resistor")
+				{
+					componentImg=ImageIO.read(getClass().getResourceAsStream(comp+compAngle+".png"));
+				}else
+				{
+					if(compAngle==0 || compAngle==180)
+					{
+						componentImg=ImageIO.read(getClass().getResourceAsStream(comp+"0.png"));
+					}else 
+					{
+						componentImg=ImageIO.read(getClass().getResourceAsStream(comp+"90.png"));
+					}
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -252,11 +286,11 @@ public class WorkspaceGUI extends JFrame {
 			} else if(selectedComp.getType()=="V-source")
 			{
 				name="V";
-				if(vallist.get(4).getText()!=null)
+				if(vallist.get(5).getText()!=null)
 				{
 					try
 					{
-						selectedComp.setVoltage(Double.parseDouble(vallist.get(4).getText()));
+						selectedComp.setVoltage(Double.parseDouble(vallist.get(5).getText()));
 					}catch(Exception err) {
 						selectedComp.setVoltage(0);
 					}
@@ -273,6 +307,8 @@ public class WorkspaceGUI extends JFrame {
     	 {
     		 selectedComp.setName(selectedComp.getName());
     	 }
+    	 selectedComp.setAngle(currAngle);
+    	 
      }
      public class Click implements MouseListener
      {
@@ -287,13 +323,63 @@ public class WorkspaceGUI extends JFrame {
 					createComponent(curri,currj);
 					clearVal(null);
 					setValue();
-				}else
+				}else if(component==null)
 				{
 					if(comp[curri][currj]!=null)
 					{
 						selectedComp=comp[curri][currj];
 						clearVal((selectedComp.getType()=="Resistor")?vallist.getLast():vallist.get(4));
 						setValue();
+					}else if(comp[curri][currj-1]!=null)
+					{
+						if(comp[curri][currj-1].getAngle()==0)
+						{
+							if(comp[curri][currj-1].getHead()==null)
+							{
+								if(connComp[0]==null)
+								{
+									pol[0]="head";
+									connComp[0]=comp[curri][currj-1];
+									System.out.println("connecting1");
+								}else 
+								{
+									if(comp[curri][currj-1]!=connComp[0])
+									{
+										connComp[1]=comp[curri][currj-1];
+										pol[1]="head";
+										System.out.println("connecting2");
+										connectComponent(connComp[0],connComp[1]);
+										connComp[0]=null;
+										connComp[1]=null;
+									}
+								}
+							}
+						}
+					}else if(comp[curri][currj+1]!=null)
+					{
+						if(comp[curri][currj+1].getAngle()==0)
+						{
+							if(comp[curri][currj+1].getTail()==null)
+							{
+								if(connComp[0]==null)
+								{
+									pol[0]="tail";
+									connComp[0]=comp[curri][currj+1];
+									System.out.println("connecting1");
+								}else 
+								{
+									if(comp[curri][currj+1]!=connComp[0])
+									{
+										connComp[1]=comp[curri][currj+1];
+										pol[1]="tail";
+										System.out.println("connecting2");
+										connectComponent(connComp[0],connComp[1]);
+										connComp[0]=null;
+										connComp[1]=null;
+									}
+								}
+							}
+						}
 					}
 				}
 			}else
@@ -307,7 +393,7 @@ public class WorkspaceGUI extends JFrame {
 				{
 					saveVal();
 					selectedComp=comp[curri][currj];
-					clearVal(null);
+					clearVal(null);					setValue();
 				}else 
 				{
 					component=selectedComp.getType();
@@ -316,6 +402,7 @@ public class WorkspaceGUI extends JFrame {
 					
 					selectedComp=null;
 				}
+				rotate.setLocation(-100,-100);
 			}
 			 
 		}
@@ -345,7 +432,29 @@ public class WorkspaceGUI extends JFrame {
 		}
     	 
      }
-
+    public void connectComponent(Component a, Component b)
+    {
+    	Component wire=new Component("wire");
+    	a.setConnection(wire);
+    	wire.setConnection(b);
+    	complist.add(wire);
+    	if(pol[0]=="head")
+    	{
+    		a.setHead(wire);
+    	}else
+    	{
+    		a.setTail(wire);
+    	}
+    	if(pol[1]=="head")
+    	{
+    		b.setHead(wire);
+    	}else
+    	{
+    		b.setTail(wire);
+    	}
+    	pol[0]=null;
+    	pol[1]=null;
+    }
 	public void createComponent(int i,int j)
 	{
 		
@@ -430,6 +539,52 @@ public class WorkspaceGUI extends JFrame {
 		}
 		
 	}
+	public class rotateClick implements MouseListener
+	{
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+			if(selectedComp!=null)
+			{
+				if(selectedComp.getAngle()<270)
+				{
+					selectedComp.setAngle(selectedComp.getAngle()+90);
+					currAngle=selectedComp.getAngle();
+				}else
+				{
+					selectedComp.setAngle(0);
+					currAngle=0;
+				}
+				setValue();
+			}
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 	public void setValue()
 	 {
 		 if(selectedComp!=null)
@@ -440,21 +595,22 @@ public class WorkspaceGUI extends JFrame {
 				 vallist.getLast().disable();
 			 }else if(selectedComp.getType()!="V-source")
 			 {
-				 vallist.get(4).disable();;
+				 vallist.get(5).disable();;
 				
 			 }
 			 
 			 if(selectedComp.getType()=="Resistor")
 			 {
 				 vallist.getLast().enable(); 
-				 vallist.get(1).setText(selectedComp.getName());
 				 vallist.getLast().setText(" "+String.valueOf(selectedComp.getResistance()));
 			 }else if(selectedComp.getType()=="V-source")
 			 {
-				 vallist.get(1).setText(selectedComp.getName());
-				 vallist.get(4).enable();
-				 vallist.get(4).setText(" "+String.valueOf(selectedComp.getVoltage()));
+				 vallist.get(5).enable();
+				 vallist.get(5).setText(" "+String.valueOf(selectedComp.getVoltage()));
 			 }
+			 
+			 vallist.get(1).setText(selectedComp.getName());
+			 vallist.get(2).setText(String.valueOf(" "+selectedComp.getAngle()+" \u00B0"));
 		 }
 	 }
 	
@@ -467,5 +623,7 @@ public class WorkspaceGUI extends JFrame {
 				i.setText("");
 			}
 		}
+		rotate.setLocation(-100,-100);
+		currAngle=0;
 	}
 }
