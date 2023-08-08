@@ -103,7 +103,6 @@ public class WorkspaceGUI extends JFrame {
     		 g2d.fillRect(0, 0,900, 675);
     		 CircuitsDiagramPanel cp =new CircuitsDiagramPanel(g);
     		 PropertyPanel vp=new PropertyPanel(g);
-    		 
     		 for(int i=0; i<27;i++)
     		 {
     			 for(int j=0; j<36;j++)
@@ -157,24 +156,13 @@ public class WorkspaceGUI extends JFrame {
 	    							 
 	    							 
 	    					 }
+    						
     					
     				 }
         		 }
     		 }
     		 
-    		 //draw wires
-    		 for(int i=0; i<linelist.size(); i++)
-    		 {
-    			 for(int j=0; j<linelist.get(i).size(); j++)
-        		 {
-        			 
-        				if(linelist.get(i).get(j)[0]<1000)
-        				{
-        					g.setColor(Color.white);
-        					g.fillRect(i*25, 100, 25, 2);
-        				}
-        		 }
-    		 }
+    		 Line line=new Line(g,linelist);
     		 
     	 }
     	
@@ -240,7 +228,7 @@ public class WorkspaceGUI extends JFrame {
     			 g.fillRect(915, i*20+35, 1+1/2, 20);
     			 g.fillRect(915, i*20+55, 10 , 1+1/2);
     			 g.fillRect(925, i*20+53, 4, 4);
-    			 g.drawString(complist.get(i).getType(), 940, i*20+60);
+    			 g.drawString(complist.get(i).getType()+" ("+complist.get(i).getName()+")", 940, i*20+60);
     		 }
     	 }
      }
@@ -356,7 +344,6 @@ public class WorkspaceGUI extends JFrame {
 							{
 								connComp[0]=comp[curri][currj-1];
 								pol[0]=(comp[curri][currj-1].getAngle()==0)?"head":"tail";
-								
 								setOrigin();
 							}else
 							{
@@ -505,7 +492,6 @@ public class WorkspaceGUI extends JFrame {
     	Component wire=new Component("wire");
     	a.setConnection(wire);
     	wire.setConnection(b);
-    	complist.add(wire);
     	if(pol[0]=="head")
     	{
     		a.setHead(wire);
@@ -520,14 +506,59 @@ public class WorkspaceGUI extends JFrame {
     	{
     		b.setTail(wire);
     	}
-    	
+    	if(origin[0]<target[0])
+    	{
+    		if(origin[1]>target[1])
+    		{
+    			if(comp[target[1]][target[0]+1]!=null &&(comp[target[1]][target[0]+1].getAngle()==0 || comp[target[1]][target[0]+1].getAngle()==180))
+    			{
+    				int[] temp;
+    	    		temp=origin;
+    	    		origin=target;
+    	    		target=temp;
+    			}
+    		}else if(origin[1]<target[1])
+    		{
+    			if(comp[target[1]][target[0]+1]!=null &&(comp[target[1]][target[0]+1].getAngle()==0 || comp[target[1]][target[0]+1].getAngle()==180))
+    			{
+    				int[] temp;
+    	    		temp=origin;
+    	    		origin=target;
+    	    		target=temp;
+    			}
+    		}
+    			
+    	}else if(origin[0]>target[0])
+    	{
+    		if(origin[1]>target[1])
+    		{
+    			if(comp[target[1]][target[0]-1]!=null &&(comp[target[1]][target[0]-1].getAngle()==0 || comp[target[1]][target[0]-1].getAngle()==180))
+    			{
+    				int[] temp;
+    	    		temp=origin;
+    	    		origin=target;
+    	    		target=temp;
+    			}
+    		}else if(origin[1]<target[1])
+    		{
+    			if(comp[target[1]][target[0]-1]!=null &&(comp[target[1]][target[0]-1].getAngle()==0 || comp[target[1]][target[0]-1].getAngle()==180))
+    			{
+    				int[] temp;
+    	    		temp=origin;
+    	    		origin=target;
+    	    		target=temp;
+    			}
+    		}
+    			
+    	}
     	LineWire drawline= new LineWire(origin,target);
-    	line=drawline.getConn();
+    	line=drawline.getPath();
     	linelist.add(line);
     	connComp[0]=null;
     	connComp[1]=null;
     	pol[0]=null;
     	pol[1]=null;
+    	
     }
 	public void createComponent(int i,int j)
 	{
