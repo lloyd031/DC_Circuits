@@ -7,6 +7,7 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 public class LineWire {
 	private Path target;
 	private Path origin;
+	private Component wire;
 	private Path[][] pathArray=new Path[27][36];
 	private boolean isVisited=false;
 	private boolean isQueued=false;
@@ -15,7 +16,7 @@ public class LineWire {
 	private Queue<Path> visited=new LinkedList<Path>();
 	private Queue<Path> currvisited=new LinkedList<Path>();
 	private Queue<Path> currqueue=new LinkedList<Path>();
-	public LineWire(Path origin,Path target)
+	public LineWire(Path origin,Path target,Component wire)
 	{
 		this.origin=origin;
 		this.target=target;
@@ -31,7 +32,7 @@ public class LineWire {
 		    {
 		    	if(axis.getX()==this.target.getX() && axis.getY()==this.target.getY())
 				{
-		    		System.out.println("done");
+		    		
 					queue.clear();
 					setPath(axis);
 				}else
@@ -73,9 +74,12 @@ public class LineWire {
 						}
 						if(isVisited==false && isQueued==false)
 						{
-							Path p = new Path(a.getX()-1,a.getY());
-							p.setPrev(a);
-							queue.add(p);
+							if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+							{
+								Path p = new Path(a.getX()-1,a.getY());
+								p.setPrev(a);
+								queue.add(p);
+							}
 						}
 					}else if(i==1)
 					{
@@ -89,9 +93,12 @@ public class LineWire {
 						}
 						if(isVisited==false && isQueued==false)
 						{
+							if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+							{
 							Path p = new Path(a.getX()+1,a.getY());
 							p.setPrev(a);
 							queue.add(p);
+							}
 						}
 					}else if(i==2)
 					{
@@ -105,9 +112,12 @@ public class LineWire {
 						}
 						if(isVisited==false && isQueued==false)
 						{
+							if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+							{
 							Path p = new Path(a.getX(),a.getY()-1);
 							p.setPrev(a);
 							queue.add(p);
+							}
 						}
 					}else if(i==3)
 					{
@@ -121,9 +131,12 @@ public class LineWire {
 						}
 						if(isVisited==false && isQueued==false)
 						{
+							if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+							{
 							Path p = new Path(a.getX(),a.getY()+1);
 							p.setPrev(a);
 							queue.add(p);
+							}
 						}
 					}
 					
@@ -163,6 +176,7 @@ public class LineWire {
 	int c=0;
 	public void setPath(Path a)
 	{
+		a.setWire(wire);
 		path.add(a);
 		if(a.getX()==origin.getX() && a.getY()==origin.getY())
 		{

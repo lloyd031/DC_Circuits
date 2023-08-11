@@ -9,6 +9,14 @@ public class Path {
     	 this.x=x;
     	 this.y=y;
      }
+      public void setWire(Component wire)
+      {
+    	  this.wire=wire;
+      }
+      Component getWire()
+      {
+    	  return this.wire;
+      }
       int getX()
      {
     	 return this.x;

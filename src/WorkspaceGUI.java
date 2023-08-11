@@ -549,9 +549,8 @@ public class WorkspaceGUI extends JFrame {
     		}
     			
     	}
-    	LineWire drawline= new LineWire(origin,target);
+    	LineWire drawline= new LineWire(origin,target,wire);
     	line=drawline.getPath();
-    	System.out.println("sdfdf "+line.size());
     	linelist.add(line);
     	connComp[0]=null;
     	connComp[1]=null;
