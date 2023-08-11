@@ -2,33 +2,36 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import javax.swing.text.html.HTMLDocument.Iterator;
+
 public class LineWire {
-	private int[] target=new int[2];
-	private int[] origin=new int[2];
-	private Queue<int[]> queue=new LinkedList<int[]>();
-	private Queue<int[]> visited=new LinkedList<int[]>();
-	private HashMap<int[],int[]> prev = new HashMap<int[],int[]>();
-	private LinkedList<int[]> path=new LinkedList<int[]>();
-	public LineWire(int[] origin,int[] target)
+	private Path target;
+	private Path origin;
+	private Path[][] pathArray=new Path[27][36];
+	private boolean isVisited=false;
+	private boolean isQueued=false;
+	private Queue<Path> queue=new LinkedList<Path>();
+	private LinkedList<Path> path=new LinkedList<Path>();
+	private Queue<Path> visited=new LinkedList<Path>();
+	private Queue<Path> currvisited=new LinkedList<Path>();
+	private Queue<Path> currqueue=new LinkedList<Path>();
+	public LineWire(Path origin,Path target)
 	{
 		this.origin=origin;
 		this.target=target;
-		System.out.println(origin[0]+" "+origin[1]);
-		System.out.println(target[0]+" "+target[1]);
-		int originb[] =new int[2];
-		originb[0]=origin[0];
-		originb[1]=origin[1];
+		Path originb=origin;
 		BFS(originb);
 	}
-	public void BFS(int[] axis)
+	public void BFS(Path axis)
 	{
 		visited.add(axis);
 		getNeighbor(axis);
 		
 		    if(!queue.isEmpty())
 		    {
-		    	if(axis[0]==this.target[0] && axis[1]==this.target[1])
+		    	if(axis.getX()==this.target.getX() && axis.getY()==this.target.getY())
 				{
+		    		System.out.println("done");
 					queue.clear();
 					setPath(axis);
 				}else
@@ -41,53 +44,136 @@ public class LineWire {
 		    
 	}
 	
-	public void getNeighbor(int n[])
+	public void getNeighbor(Path a)
 	{
-		for(int i=0;i<4; i++)
+		
+				for(int i=0;i<4; i++)
+				{
+					isVisited=false;
+					isQueued=false;
+					for(Path v:visited)
+					{
+						currvisited.add(v);
+					}
+					
+					for(Path q:queue)
+					{
+						currqueue.add(q);
+					}
+					
+					if(i==0)
+					{
+						
+						
+						checkVisited(a.getX()-1,a.getY(),currvisited.poll() , currvisited);
+						
+						if(!currqueue.isEmpty())
+						{
+							checkQueue(a.getX()-1,a.getY(),currqueue.poll() , currqueue);
+						}
+						if(isVisited==false && isQueued==false)
+						{
+							Path p = new Path(a.getX()-1,a.getY());
+							p.setPrev(a);
+							queue.add(p);
+						}
+					}else if(i==1)
+					{
+						
+						
+						checkVisited(a.getX()+1,a.getY(), currvisited.poll() , currvisited);
+						
+						if(!currqueue.isEmpty())
+						{
+							checkQueue(a.getX()+1,a.getY(),currqueue.poll() , currqueue);
+						}
+						if(isVisited==false && isQueued==false)
+						{
+							Path p = new Path(a.getX()+1,a.getY());
+							p.setPrev(a);
+							queue.add(p);
+						}
+					}else if(i==2)
+					{
+						
+						
+						checkVisited(a.getX(),a.getY()-1,currvisited.poll() , currvisited);
+						
+						if(!currqueue.isEmpty())
+						{
+							checkQueue(a.getX(),a.getY()-1,currqueue.poll() , currqueue);
+						}
+						if(isVisited==false && isQueued==false)
+						{
+							Path p = new Path(a.getX(),a.getY()-1);
+							p.setPrev(a);
+							queue.add(p);
+						}
+					}else if(i==3)
+					{
+						
+						
+						checkVisited(a.getX(),a.getY()+1,currvisited.poll() , currvisited);
+						
+						if(!currqueue.isEmpty())
+						{
+							checkQueue(a.getX(),a.getY()+1,currqueue.poll() , currqueue);
+						}
+						if(isVisited==false && isQueued==false)
+						{
+							Path p = new Path(a.getX(),a.getY()+1);
+							p.setPrev(a);
+							queue.add(p);
+						}
+					}
+					
+				}
+			
+		
+	}
+	public void checkVisited(int  x,int  y,Path index, Queue<Path> v)
+	{
+		
+			if(index.getX()==x && index.getY()==y)
+			{
+				isVisited=true;
+				v.clear();
+			}
+		
+		if(!v.isEmpty())
 		{
-			int[] curr=new int[2];
-			if(i==1)
-			{
-				curr[0]=n[0]-1;
-				curr[1]=n[1];
-			}else if(i==0)
-			{
-				curr[0]=n[0]+1;
-				curr[1]=n[1];
-			}else if(i==2)
-			{
-				curr[0]=n[0];
-				curr[1]=n[1]-1;
-			}if(i==3)
-			{
-				curr[0]=n[0];
-				curr[1]=n[1]+1;
-			}
-			
-			if(!queue.contains(curr) && !visited.contains(curr))
-			{
-				prev.put(curr, n);
-				queue.add(curr);
-			}
-			
+			checkVisited(x,y,v.poll(),v);
 		}
+	}
+	public void checkQueue(int  x,int  y,Path index, Queue<Path> q)
+	{
 		
+			if(index.getX()==x && index.getY()==y)
+			{
+				isQueued=true;
+				q.clear();
+			}
 		
+		if(!q.isEmpty())
+		{
+			checkQueue(x,y,q.poll(),q);
+		}
 	}
 	
-	public void setPath(int[] a)
+	int c=0;
+	public void setPath(Path a)
 	{
 		path.add(a);
-		if(a[0]==origin[0] && a[1]==origin[1])
+		if(a.getX()==origin.getX() && a.getY()==origin.getY())
 		{
-			prev.clear();
+			c=1;
 		}
-		if(!prev.isEmpty())
+		if(c!=1)
 		{
-			setPath(prev.get(a));
+			setPath(a.getPrev());
 		}
 	}
-	LinkedList<int[]> getPath()
+	LinkedList<Path> getPath()
 	{
 		return this.path;
 	}

@@ -14,10 +14,10 @@ public class WorkspaceGUI extends JFrame {
 	public int my=-100;
 	public int curri,currj;
 	public int currAngle=0;
-	public int origin[]=new int[2];
-	public int target[]=new int[2];
-	public LinkedList<int[]> line=new LinkedList<int[]>();
-	public LinkedList<LinkedList<int[]>> linelist = new LinkedList<LinkedList<int[]>>();
+	public Path origin;
+	public Path target;
+	public LinkedList<Path> line=new LinkedList<Path>();
+	public LinkedList<LinkedList<Path>> linelist = new LinkedList<LinkedList<Path>>();
 	Component selectedComp=null;
 	public String component;
 	BufferedImage componentImg=null;
@@ -228,7 +228,7 @@ public class WorkspaceGUI extends JFrame {
     			 g.fillRect(915, i*20+35, 1+1/2, 20);
     			 g.fillRect(915, i*20+55, 10 , 1+1/2);
     			 g.fillRect(925, i*20+53, 4, 4);
-    			 g.drawString(complist.get(i).getType()+" ("+complist.get(i).getName()+")", 940, i*20+60);
+    			 g.drawString(complist.get(i).getType()+"("+complist.get(i).getName()+")", 940, i*20+60);
     		 }
     	 }
      }
@@ -344,7 +344,7 @@ public class WorkspaceGUI extends JFrame {
 							{
 								connComp[0]=comp[curri][currj-1];
 								pol[0]=(comp[curri][currj-1].getAngle()==0)?"head":"tail";
-								setOrigin();
+								setOrigin(currj,curri);
 							}else
 							{
 								if(connComp[0]!=comp[curri][currj-1])
@@ -352,7 +352,7 @@ public class WorkspaceGUI extends JFrame {
 									connComp[1]=comp[curri][currj-1];
 									pol[1]=(comp[curri][currj-1].getAngle()==0)?"head":"tail";
 									
-									setTarget();
+									setTarget(currj,curri);
 									connectComponent(connComp[0],connComp[1]);
 								}
 								
@@ -367,7 +367,7 @@ public class WorkspaceGUI extends JFrame {
 								connComp[0]=comp[curri][currj+1];
 								pol[0]=(comp[curri][currj+1].getAngle()==0)?"tail":"head";
 								
-								setOrigin();
+								setOrigin(currj,curri);
 							}else
 							{
 								if(connComp[0]!=comp[curri][currj+1])
@@ -375,7 +375,7 @@ public class WorkspaceGUI extends JFrame {
 									connComp[1]=comp[curri][currj+1];
 									pol[1]=(comp[curri][currj+1].getAngle()==0)?"tail":"head";
 									
-									setTarget();
+									setTarget(currj,curri);
 									connectComponent(connComp[0],connComp[1]);
 								}
 							}
@@ -389,7 +389,7 @@ public class WorkspaceGUI extends JFrame {
 								connComp[0]=comp[curri+1][currj];
 								pol[0]=(comp[curri+1][currj].getAngle()==90)?"head":"tail";
 								
-								setOrigin();
+								setOrigin(currj,curri);
 							}else
 							{
 								if(connComp[0]!=comp[curri+1][currj])
@@ -397,7 +397,7 @@ public class WorkspaceGUI extends JFrame {
 									connComp[1]=comp[curri+1][currj];
 									pol[1]=(comp[curri+1][currj].getAngle()==90)?"head":"tail";
 									
-									setTarget();
+									setTarget(currj,curri);
 									connectComponent(connComp[0],connComp[1]);
 								}
 							}
@@ -411,7 +411,7 @@ public class WorkspaceGUI extends JFrame {
 								connComp[0]=comp[curri-1][currj];
 								pol[0]=(comp[curri-1][currj].getAngle()==90)?"tail":"head";
 								
-								setOrigin();
+								setOrigin(currj,curri);
 							}else
 							{
 								if(connComp[0]!=comp[curri-1][currj])
@@ -419,7 +419,7 @@ public class WorkspaceGUI extends JFrame {
 									connComp[1]=comp[curri-1][currj];
 									pol[1]=(comp[curri-1][currj].getAngle()==90)?"tail":"head";
 									
-									setTarget();
+									setTarget(currj,curri);
 									connectComponent(connComp[0],connComp[1]);
 								}  
 								
@@ -477,15 +477,13 @@ public class WorkspaceGUI extends JFrame {
 		}
     	 
      }
-     public void setOrigin()
+     public void setOrigin(int x, int y)
      {
-    	 origin[0]=currj;
-		 origin[1]=curri;
+    	 origin=new Path(x,y);
      }
-     public void setTarget()
+     public void setTarget(int x, int y)
      {
-    	 target[0]=currj;
-    	 target[1]=curri;
+    	 target=new Path(x,y);
      }
     public void connectComponent(Component a, Component b)
     {
@@ -506,44 +504,44 @@ public class WorkspaceGUI extends JFrame {
     	{
     		b.setTail(wire);
     	}
-    	if(origin[0]<target[0])
+    	if(origin.getX()<target.getX())
     	{
-    		if(origin[1]>target[1])
+    		if(origin.getY()>target.getY())
     		{
-    			if(comp[target[1]][target[0]+1]!=null &&(comp[target[1]][target[0]+1].getAngle()==0 || comp[target[1]][target[0]+1].getAngle()==180))
+    			if(comp[target.getY()][target.getX()+1]!=null &&(comp[target.getY()][target.getX()+1].getAngle()==0 || comp[target.getY()][target.getX()+1].getAngle()==180))
     			{
-    				int[] temp;
+    				Path temp;
     	    		temp=origin;
     	    		origin=target;
     	    		target=temp;
     			}
-    		}else if(origin[1]<target[1])
+    		}else if(origin.getY()<target.getY())
     		{
-    			if(comp[target[1]][target[0]+1]!=null &&(comp[target[1]][target[0]+1].getAngle()==0 || comp[target[1]][target[0]+1].getAngle()==180))
+    			if(comp[target.getY()][target.getX()+1]!=null &&(comp[target.getY()][target.getX()+1].getAngle()==0 || comp[target.getY()][target.getX()+1].getAngle()==180))
     			{
-    				int[] temp;
+    				Path temp;
     	    		temp=origin;
     	    		origin=target;
     	    		target=temp;
     			}
     		}
     			
-    	}else if(origin[0]>target[0])
+    	}else if(origin.getX()>target.getX())
     	{
-    		if(origin[1]>target[1])
+    		if(origin.getY()>target.getY())
     		{
-    			if(comp[target[1]][target[0]-1]!=null &&(comp[target[1]][target[0]-1].getAngle()==0 || comp[target[1]][target[0]-1].getAngle()==180))
+    			if(comp[target.getY()][target.getX()-1]!=null &&(comp[target.getY()][target.getX()-1].getAngle()==0 || comp[target.getY()][target.getX()-1].getAngle()==180))
     			{
-    				int[] temp;
+    				Path temp;
     	    		temp=origin;
     	    		origin=target;
     	    		target=temp;
     			}
-    		}else if(origin[1]<target[1])
+    		}else if(origin.getY()<target.getY())
     		{
-    			if(comp[target[1]][target[0]-1]!=null &&(comp[target[1]][target[0]-1].getAngle()==0 || comp[target[1]][target[0]-1].getAngle()==180))
+    			if(comp[target.getY()][target.getX()-1]!=null &&(comp[target.getY()][target.getX()-1].getAngle()==0 || comp[target.getY()][target.getX()-1].getAngle()==180))
     			{
-    				int[] temp;
+    				Path temp;
     	    		temp=origin;
     	    		origin=target;
     	    		target=temp;
@@ -553,6 +551,7 @@ public class WorkspaceGUI extends JFrame {
     	}
     	LineWire drawline= new LineWire(origin,target);
     	line=drawline.getPath();
+    	System.out.println("sdfdf "+line.size());
     	linelist.add(line);
     	connComp[0]=null;
     	connComp[1]=null;
