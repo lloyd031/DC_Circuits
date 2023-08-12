@@ -7,8 +7,10 @@ import javax.swing.JPanel;
 
 public class Line extends JPanel{
 	public LinkedList<LinkedList<Path>> linelist = new LinkedList<LinkedList<Path>>();
-   public Line(Graphics g, LinkedList<LinkedList<Path>> linelist)
+	public Path path[][];
+   public Line(Graphics g, LinkedList<LinkedList<Path>> linelist, Path path[][])
    {
+	   this.path=path;
 	   this.linelist=linelist;
 	   g.setColor(Color.decode("#7ce38b"));
 	 //draw wires
@@ -16,6 +18,14 @@ public class Line extends JPanel{
 		 {
 			 for(int j=0; j<this.linelist.get(i).size(); j++)
   		 {
+				 path[this.linelist.get(i).get(j).getY()][this.linelist.get(i).get(j).getX()]=this.linelist.get(i).get(j);
+				 
+				  if(this.linelist.get(i).get(j).isJuction()==true)
+					 {
+						 
+						 g.fillOval(this.linelist.get(i).get(j).getX()*25-5 , this.linelist.get(i).get(j).getY()*25-5,10,10);
+					 }
+				 
 				 if(!this.linelist.get(i).get(j).equals(this.linelist.get(i).getLast()))
 					{	
 					 if(this.linelist.get(i).get(j+1).getY()==this.linelist.get(i).get(j).getY())

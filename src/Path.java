@@ -4,6 +4,7 @@ public class Path {
 	 private int x;
 	 private int y;
 	 private Path prev;
+	 private boolean junction;
      public Path(int x, int y)
      {
     	 this.x=x;
@@ -12,6 +13,14 @@ public class Path {
       public void setWire(Component wire)
       {
     	  this.wire=wire;
+      }
+      public void setJuction(boolean j)
+      {
+    	  this.junction=j;
+      }
+      boolean isJuction()
+      {
+    	  return this.junction;
       }
       Component getWire()
       {

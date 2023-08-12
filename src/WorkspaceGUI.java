@@ -8,8 +8,9 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 public class WorkspaceGUI extends JFrame {
-	static Component comp[][]= new Component[27][36];
-	static LinkedList<Component> complist=new LinkedList<Component>();
+	public Component comp[][]= new Component[27][36];
+	public Path path[][]=new Path[27][36];
+	public LinkedList<Component> complist=new LinkedList<Component>();
 	public int mx=-100;
 	public int my=-100;
 	public int curri,currj;
@@ -107,10 +108,10 @@ public class WorkspaceGUI extends JFrame {
     		 {
     			 for(int j=0; j<36;j++)
         		 {
+    				 
     				
     				 if(i!=0 && j !=0)
     				 {
-	    					 
     						 if(mx>=j*25-25/2+3 && mx<=j*25+25/2+3 && my>= i*25-25/2+3 && my<i*25+25/2+3)
             				 {
     							 currj=j;
@@ -141,7 +142,7 @@ public class WorkspaceGUI extends JFrame {
 		    						    	 
 		    						    }
 	    							 drawComponent(comp[i][j].getType(),comp[i][j].getAngle());
-	    							 g.drawImage(componentImg, j*25-23 , i*25-50/2+1,50,50,null);
+	    							 g.drawImage(componentImg, j*25-24 , i*25-50/2+1,50,50,null);
 	    							 String val=(comp[i][j].getType()=="Resistor")?String.valueOf(comp[i][j].getResistance()+" Ω"):String.valueOf(comp[i][j].getVoltage()+" V");
 	    							 g.setColor(Color.decode("#77bdfb"));
 	    							 Font stringFont = new Font( "SansSerif", Font.PLAIN, 12 );
@@ -162,7 +163,7 @@ public class WorkspaceGUI extends JFrame {
         		 }
     		 }
     		 
-    		 Line line=new Line(g,linelist);
+    		 Line line=new Line(g,linelist,path);
     		 
     	 }
     	
@@ -336,7 +337,7 @@ public class WorkspaceGUI extends JFrame {
 						selectedComp=comp[curri][currj];
 						clearVal((selectedComp.getType()=="Resistor")?vallist.getLast():vallist.get(4));
 						setValue();
-					}else if(comp[curri][currj-1]!=null)
+					}else if(comp[curri][currj-1]!=null && path[curri][currj]==null)
 					{
 						if((comp[curri][currj-1].getAngle()==0 && comp[curri][currj-1].getHead()==null)  || (comp[curri][currj-1].getAngle()==180 && comp[curri][currj-1].getTail()==null))
 						{
@@ -358,7 +359,7 @@ public class WorkspaceGUI extends JFrame {
 								
 							}
 						}
-					} else if(comp[curri][currj+1]!=null)
+					} else if(comp[curri][currj+1]!=null && path[curri][currj]==null)
 					{
 						if((comp[curri][currj+1].getAngle()==0 && comp[curri][currj+1].getTail()==null)  || (comp[curri][currj+1].getAngle()==180 && comp[curri][currj+1].getHead()==null))
 						{
@@ -380,7 +381,7 @@ public class WorkspaceGUI extends JFrame {
 								}
 							}
 						}
-					}else if(comp[curri+1][currj]!=null)
+					}else if(comp[curri+1][currj]!=null && path[curri][currj]==null)
 					{
 						if((comp[curri+1][currj].getAngle()==90 && comp[curri+1][currj].getHead()==null)  || (comp[curri+1][currj].getAngle()==270 && comp[curri+1][currj].getTail()==null))
 						{
@@ -402,7 +403,7 @@ public class WorkspaceGUI extends JFrame {
 								}
 							}
 						}
-					}else if(comp[curri-1][currj]!=null)
+					}else if(comp[curri-1][currj]!=null && path[curri][currj]==null)
 					{
 						if((comp[curri-1][currj].getAngle()==90 && comp[curri-1][currj].getTail()==null)  || (comp[curri-1][currj].getAngle()==270 && comp[curri-1][currj].getHead()==null))
 						{
@@ -425,6 +426,13 @@ public class WorkspaceGUI extends JFrame {
 								
 							}
 						}
+					}else if(connComp[0]!=null && path[curri][currj]!=null)
+					{
+						connComp[1]=path[curri][currj].getWire();
+						setTarget(currj,curri);
+						path[curri][currj].setJuction(true);
+						connectComponent(connComp[0],connComp[1]);
+						
 					}
 				}
 			}else
@@ -487,9 +495,13 @@ public class WorkspaceGUI extends JFrame {
      }
     public void connectComponent(Component a, Component b)
     {
-    	Component wire=new Component("wire");
-    	a.setConnection(wire);
-    	wire.setConnection(b);
+    	
+    	Component wire=(connComp[1].getType().equals("wire"))?b:new Component("wire");
+        a.setConnection(wire);
+        if(!b.getType().equals("wire"))
+        {
+        	wire.setConnection(b);
+        }
     	if(pol[0]=="head")
     	{
     		a.setHead(wire);
@@ -549,7 +561,8 @@ public class WorkspaceGUI extends JFrame {
     		}
     			
     	}
-    	LineWire drawline= new LineWire(origin,target,wire);
+    	
+    	LineWire drawline= new LineWire(origin,target,wire,(b.getType().equals("wire"))?true:false);
     	line=drawline.getPath();
     	linelist.add(line);
     	connComp[0]=null;

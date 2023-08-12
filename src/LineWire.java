@@ -16,8 +16,11 @@ public class LineWire {
 	private Queue<Path> visited=new LinkedList<Path>();
 	private Queue<Path> currvisited=new LinkedList<Path>();
 	private Queue<Path> currqueue=new LinkedList<Path>();
-	public LineWire(Path origin,Path target,Component wire)
+	private boolean isJunction;
+	public LineWire(Path origin,Path target,Component wire,boolean isJunction)
 	{
+		this.isJunction=isJunction;
+		this.wire=wire;
 		this.origin=origin;
 		this.target=target;
 		Path originb=origin;
@@ -32,8 +35,11 @@ public class LineWire {
 		    {
 		    	if(axis.getX()==this.target.getX() && axis.getY()==this.target.getY())
 				{
-		    		
 					queue.clear();
+					if(this.isJunction==true)
+					{
+						axis.setJuction(true);
+					}
 					setPath(axis);
 				}else
 				{   
@@ -176,7 +182,8 @@ public class LineWire {
 	int c=0;
 	public void setPath(Path a)
 	{
-		a.setWire(wire);
+		
+		a.setWire(this.wire);
 		path.add(a);
 		if(a.getX()==origin.getX() && a.getY()==origin.getY())
 		{
