@@ -10,7 +10,9 @@ import java.io.IOException;
 public class WorkspaceGUI extends JFrame {
 	public Component comp[][]= new Component[27][36];
 	public Path path[][]=new Path[27][36];
+	public Path targetpath;
 	public LinkedList<Component> complist=new LinkedList<Component>();
+	public LinkedList<Component> complistlayer=new LinkedList<Component>();
 	public int mx=-100;
 	public int my=-100;
 	public int curri,currj;
@@ -30,14 +32,15 @@ public class WorkspaceGUI extends JFrame {
 	LinkedList<JTextField> vallist=new LinkedList<JTextField>();
 	JLabel rotate;
 	public WorkspaceGUI()
-     { this.setTitle("DC-Circuit Analysis");
+     { 
+		 this.setTitle("DC-Circuit Analysis");
     	 this.setSize(1056,714);
     	 this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	 this.setVisible(true);
     	 this.setResizable(false);
     	 this.setLocationRelativeTo(null);
     	 BreadBoard board=new BreadBoard();
     	 this.setContentPane(board);
+    	 this.setVisible(true);
     	 Move move = new Move();
     	 board.addMouseMotionListener(move);
     	 Click click = new Click();
@@ -48,9 +51,11 @@ public class WorkspaceGUI extends JFrame {
     	 this.add(voltBtn);
     	 VoltageClick voltageclick=new VoltageClick();
     	 voltBtn.addMouseListener(voltageclick);
-    	 JButton currBtn=new JButton("current source");
+    	 JButton currBtn=new JButton("start");
     	 currBtn.setLocation(130,650);
     	 currBtn.setSize(130, 25);
+    	 CurrentClick currClick=new CurrentClick();
+    	 currBtn.addMouseListener(currClick);
     	 this.add(currBtn);
     	 JButton resBtn=new JButton("resistor");
     	 resBtn.setLocation(260,650);
@@ -61,6 +66,8 @@ public class WorkspaceGUI extends JFrame {
     	 JButton gBtn=new JButton("ground");
     	 gBtn.setLocation(360,650);
     	 gBtn.setSize(130, 25);
+    	 GroundClick groundClick=new GroundClick();
+    	 gBtn.addMouseListener(groundClick);
     	 this.add(gBtn);
     	 JLabel panel = new JLabel("Circuits Diagram");
     	 panel.setForeground(Color.WHITE);
@@ -83,7 +90,7 @@ public class WorkspaceGUI extends JFrame {
     	 }
     	 vallist.get(2).setEditable(false);
     	 vallist.get(3).disable();
-    	 rotate=new JLabel("R");
+    	 rotate=new JLabel("");
     	 rotate.setForeground(Color.white);
     	 ImageIcon rotateIcon = new ImageIcon(getClass().getResource("rotate.png"));
     	 rotate.setIcon(rotateIcon);
@@ -92,6 +99,7 @@ public class WorkspaceGUI extends JFrame {
     	 rotateClick rclick= new rotateClick();
     	 rotate.addMouseListener(rclick);
     	 this.add(rotate);
+    	 
      }
      
      public class BreadBoard extends JPanel
@@ -102,8 +110,7 @@ public class WorkspaceGUI extends JFrame {
     		 Graphics2D g2d=(Graphics2D)g;
     		 g2d.setColor(Color.decode("#1f1f1f"));
     		 g2d.fillRect(0, 0,900, 675);
-    		 CircuitsDiagramPanel cp =new CircuitsDiagramPanel(g);
-    		 PropertyPanel vp=new PropertyPanel(g);
+    		 
     		 for(int i=0; i<27;i++)
     		 {
     			 for(int j=0; j<36;j++)
@@ -119,7 +126,13 @@ public class WorkspaceGUI extends JFrame {
     							if(component!=null)
     							{
     							 drawComponent(component,currAngle);
-           						 g.drawImage(componentImg, j*25-23 , i*25-50/2+1,50,50,null);
+           						 if(component!="ground")
+           						 {
+           							g.drawImage(componentImg, j*25-23 , i*25-50/2+1,50,50,null);
+           						 }else
+           						 {
+           							g.drawImage(componentImg, j*25 , i*25,24,24,null);
+           						 }
     							
     							}
     							
@@ -133,7 +146,7 @@ public class WorkspaceGUI extends JFrame {
     						 if(comp[i][j]!=null)
 	    					 {
 	    						 
-    							 if(comp[i][j]==selectedComp)
+    							 if(comp[i][j]==selectedComp && selectedComp.getType()!="ground")
 		    						    {
 	 								 		currAngle=comp[i][j].getAngle();
 	 								 		rotate.setLocation(j*25+75/2+5, i*25+20/2+6);
@@ -141,17 +154,28 @@ public class WorkspaceGUI extends JFrame {
 	 								 		g.drawRect(j*25-25, i*25-25, 52, 52);
 		    						    	 
 		    						    }
-	    							 drawComponent(comp[i][j].getType(),comp[i][j].getAngle());
-	    							 g.drawImage(componentImg, j*25-24 , i*25-50/2+1,50,50,null);
+	    							 
+	    								 drawComponent(comp[i][j].getType(),comp[i][j].getAngle());
+	    							 
+    						 if(comp[i][j].getType()!="ground")
+							 {
+    							 g.drawImage(componentImg, j*25-24 , i*25-50/2+1,50,50,null);
+							 }else
+       						 {
+     							g.drawImage(componentImg, j*25 , i*25,24,24,null);
+     					     }
 	    							 String val=(comp[i][j].getType()=="Resistor")?String.valueOf(comp[i][j].getResistance()+" Ω"):String.valueOf(comp[i][j].getVoltage()+" V");
 	    							 g.setColor(Color.decode("#77bdfb"));
 	    							 Font stringFont = new Font( "SansSerif", Font.PLAIN, 12 );
-	    							 if(comp[i][j].getAngle()==0 || comp[i][j].getAngle()==180)
+	    							 if(comp[i][j].getType()!="ground")
 	    							 {
-	    								 g.drawString(comp[i][j].getName()+" = "+ val, j*25-25, i*25-28);
-	    							 }else
-	    							 {
-	    								 g.drawString(comp[i][j].getName()+" = "+ val, j*25+35, i*25+25/2-10);
+	    								 if(comp[i][j].getAngle()==0 || comp[i][j].getAngle()==180)
+		    							 {
+		    								 g.drawString(comp[i][j].getName()+" = "+ val, j*25-25, i*25-28);
+		    							 }else
+		    							 {
+		    								 g.drawString(comp[i][j].getName()+" = "+ val, j*25+35, i*25+25/2-10);
+		    							 }
 	    							 }
 	    							 
 	    							 
@@ -164,7 +188,8 @@ public class WorkspaceGUI extends JFrame {
     		 }
     		 
     		 Line line=new Line(g,linelist,path);
-    		 
+    		 CircuitsDiagramPanel cp =new CircuitsDiagramPanel(g);
+    		 PropertyPanel vp=new PropertyPanel(g);
     	 }
     	
      }
@@ -212,10 +237,10 @@ public class WorkspaceGUI extends JFrame {
     		 g.drawImage(componentImg, 905 , 5,14,14,null);
     		 Font stringFont = new Font( "SansSerif", Font.PLAIN, 14 );
     		 
-    		 for(int i=0; i<complist.size(); i++)
+    		 for(int i=0; i<complistlayer.size(); i++)
     		 {
     			 g.setColor(Color.white);
-    			 if(complist.get(i)==selectedComp)
+    			 if(complistlayer.get(i)==selectedComp)
     			 {
     				g.drawRect(932, i*20+45, 100, 20); 
     			 }
@@ -229,7 +254,7 @@ public class WorkspaceGUI extends JFrame {
     			 g.fillRect(915, i*20+35, 1+1/2, 20);
     			 g.fillRect(915, i*20+55, 10 , 1+1/2);
     			 g.fillRect(925, i*20+53, 4, 4);
-    			 g.drawString(complist.get(i).getType()+"("+complist.get(i).getName()+")", 940, i*20+60);
+    			 g.drawString(complistlayer.get(i).getType()+"("+complistlayer.get(i).getName()+")", 940, i*20+60);
     		 }
     	 }
      }
@@ -327,9 +352,19 @@ public class WorkspaceGUI extends JFrame {
 			{
 				if(component!=null)
 				{
-					createComponent(curri,currj);
-					clearVal(null);
-					setValue();
+					if(component!="ground")
+					{
+						createComponent(curri,currj);
+						clearVal(null);
+						setValue();
+					}else
+					{
+						if(path[curri][currj]!=null)
+						{
+							path[curri][currj].getWire().setReference();
+							createComponent(curri,currj);
+						}
+					}
 				}else if(component==null)
 				{
 					if(comp[curri][currj]!=null)
@@ -428,6 +463,7 @@ public class WorkspaceGUI extends JFrame {
 						}
 					}else if(connComp[0]!=null && path[curri][currj]!=null)
 					{
+						targetpath=path[curri][currj];
 						connComp[1]=path[curri][currj].getWire();
 						setTarget(currj,curri);
 						path[curri][currj].setJuction(true);
@@ -497,7 +533,11 @@ public class WorkspaceGUI extends JFrame {
     {
     	
     	Component wire=(connComp[1].getType().equals("wire"))?b:new Component("wire");
-        a.setConnection(wire);
+        if(wire!=b)
+        {
+        	complist.add(wire);
+        }
+    	a.setConnection(wire);
         if(!b.getType().equals("wire"))
         {
         	wire.setConnection(b);
@@ -578,7 +618,12 @@ public class WorkspaceGUI extends JFrame {
 			{
 				Component c=new Component(component);
 				comp[i][j]=c;
-				complist.add(c);
+				
+				if(component!="ground")
+				{
+					complist.add(c);
+					complistlayer.add(c);
+				}
 				selectedComp=c;
 				saveVal();
 				component=null;
@@ -621,6 +666,40 @@ public class WorkspaceGUI extends JFrame {
 		
 		
 	}
+	public class CurrentClick implements MouseListener
+	{
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+			NodalAnalysis nodalAnalysis=new NodalAnalysis(complist);
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 	public class VoltageClick implements MouseListener
 	{
 
@@ -628,6 +707,39 @@ public class WorkspaceGUI extends JFrame {
 		public void mouseClicked(MouseEvent e) {
 			// TODO Auto-generated method stub
 			component="V-source";
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}public class GroundClick implements MouseListener
+	{
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+			component="ground";
 		}
 
 		@Override

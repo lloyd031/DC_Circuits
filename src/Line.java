@@ -32,18 +32,22 @@ public class Line extends JPanel{
 					 {
 						 if(this.linelist.get(i).get(j+1).getX()<this.linelist.get(i).get(j).getX())
 							{
+							 this.linelist.get(i).get(j).setAngle(0);
 							 g.fillRect(this.linelist.get(i).get(j).getX()*25-25, this.linelist.get(i).get(j).getY()*25, 25, 2);
 							}else if(this.linelist.get(i).get(j+1).getX()>this.linelist.get(i).get(j).getX())
 							{
+								this.linelist.get(i).get(j).setAngle(0);
 								 g.fillRect(this.linelist.get(i).get(j).getX()*25, this.linelist.get(i).get(j).getY()*25, 25, 2);
 							}
 					 }else if(this.linelist.get(i).get(j+1).getX()==this.linelist.get(i).get(j).getX())
 					 {
 						 if(this.linelist.get(i).get(j+1).getY()<this.linelist.get(i).get(j).getY())
 							{
+							 this.linelist.get(i).get(j).setAngle(90);
 							 g.fillRect(this.linelist.get(i).get(j).getX()*25, this.linelist.get(i).get(j).getY()*25-25, 2, 25);
 							}else if(this.linelist.get(i).get(j+1).getY()>this.linelist.get(i).get(j).getY())
 							{
+								this.linelist.get(i).get(j).setAngle(90);
 								 g.fillRect(this.linelist.get(i).get(j).getX()*25, this.linelist.get(i).get(j).getY()*25, 2, 25);
 							}
 					 }

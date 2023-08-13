@@ -4,11 +4,20 @@ public class Path {
 	 private int x;
 	 private int y;
 	 private Path prev;
+	 private int angle;
 	 private boolean junction;
      public Path(int x, int y)
      {
     	 this.x=x;
     	 this.y=y;
+     }
+     public void setAngle(int angle)
+     {
+    	 this.angle=angle;
+     }
+     int getAngle()
+     {
+    	 return this.angle;
      }
       public void setWire(Component wire)
       {
