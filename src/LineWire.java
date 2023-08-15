@@ -7,8 +7,8 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 public class LineWire {
 	private Path target;
 	private Path origin;
+	private Component comp[][]= new Component[27][36];
 	private Component wire;
-	private Path[][] pathArray=new Path[27][36];
 	private boolean isVisited=false;
 	private boolean isQueued=false;
 	private Queue<Path> queue=new LinkedList<Path>();
@@ -17,8 +17,9 @@ public class LineWire {
 	private Queue<Path> currvisited=new LinkedList<Path>();
 	private Queue<Path> currqueue=new LinkedList<Path>();
 	private boolean isJunction;
-	public LineWire(Path origin,Path target,Component wire,boolean isJunction)
+	public LineWire(Path origin,Path target,Component wire,boolean isJunction,Component comp[][])
 	{
+		this.comp=comp;
 		this.isJunction=isJunction;
 		this.wire=wire;
 		this.origin=origin;
@@ -38,7 +39,7 @@ public class LineWire {
 					queue.clear();
 					if(this.isJunction==true)
 					{
-						axis.setJuction(true);
+						target.setJuction(true);
 					}
 					setPath(axis);
 				}else
@@ -53,7 +54,7 @@ public class LineWire {
 	
 	public void getNeighbor(Path a)
 	{
-		
+		         
 				for(int i=0;i<4; i++)
 				{
 					isVisited=false;
@@ -68,7 +69,7 @@ public class LineWire {
 						currqueue.add(q);
 					}
 					
-					if(i==0)
+					if(i==0 )
 					{
 						
 						
@@ -78,13 +79,16 @@ public class LineWire {
 						{
 							checkQueue(a.getX()-1,a.getY(),currqueue.poll() , currqueue);
 						}
-						if(isVisited==false && isQueued==false)
+						if(a.getX()-1>0)
 						{
-							if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+							if(isVisited==false && isQueued==false && comp[a.getY()][a.getX()-1]==null)
 							{
-								Path p = new Path(a.getX()-1,a.getY());
-								p.setPrev(a);
-								queue.add(p);
+								if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+								{
+									Path p = new Path(a.getX()-1,a.getY());
+									p.setPrev(a);
+									queue.add(p);
+								}
 							}
 						}
 					}else if(i==1)
@@ -97,13 +101,16 @@ public class LineWire {
 						{
 							checkQueue(a.getX()+1,a.getY(),currqueue.poll() , currqueue);
 						}
-						if(isVisited==false && isQueued==false)
+						if(a.getX()+1<36)
 						{
-							if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+							if(isVisited==false && isQueued==false  && comp[a.getY()][a.getX()+1]==null)
 							{
-							Path p = new Path(a.getX()+1,a.getY());
-							p.setPrev(a);
-							queue.add(p);
+								if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+								{
+								Path p = new Path(a.getX()+1,a.getY());
+								p.setPrev(a);
+								queue.add(p);
+								}
 							}
 						}
 					}else if(i==2)
@@ -116,13 +123,16 @@ public class LineWire {
 						{
 							checkQueue(a.getX(),a.getY()-1,currqueue.poll() , currqueue);
 						}
-						if(isVisited==false && isQueued==false)
+						if(a.getY()-1>0)
 						{
-							if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+							if(isVisited==false && isQueued==false  && comp[a.getY()-1][a.getX()]==null)
 							{
-							Path p = new Path(a.getX(),a.getY()-1);
-							p.setPrev(a);
-							queue.add(p);
+								if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+								{
+								Path p = new Path(a.getX(),a.getY()-1);
+								p.setPrev(a);
+								queue.add(p);
+								}
 							}
 						}
 					}else if(i==3)
@@ -135,13 +145,16 @@ public class LineWire {
 						{
 							checkQueue(a.getX(),a.getY()+1,currqueue.poll() , currqueue);
 						}
-						if(isVisited==false && isQueued==false)
+						if(a.getY()+1<27)
 						{
-							if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+							if(isVisited==false && isQueued==false  && comp[a.getY()+1][a.getX()]==null)
 							{
-							Path p = new Path(a.getX(),a.getY()+1);
-							p.setPrev(a);
-							queue.add(p);
+								if(a.getX()>0 && a.getX()<37 && a.getY()>0 && a.getY()<27)
+								{
+								Path p = new Path(a.getX(),a.getY()+1);
+								p.setPrev(a);
+								queue.add(p);
+								}
 							}
 						}
 					}
