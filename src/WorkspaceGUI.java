@@ -15,6 +15,7 @@ public class WorkspaceGUI extends JFrame {
 	public LinkedList<Component> complistlayer=new LinkedList<Component>();
 	public int mx=-100;
 	public int my=-100;
+	public boolean running;
 	public int curri,currj;
 	public int currAngle=0;
 	public char originarm,targetarm;  
@@ -37,11 +38,12 @@ public class WorkspaceGUI extends JFrame {
 		 this.setTitle("DC-Circuit Analysis");
     	 this.setSize(1056,714);
     	 this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	 this.setResizable(false);
+    	 this.setResizable(true);
     	 this.setLocationRelativeTo(null);
-    	 BreadBoard board=new BreadBoard();
-    	 this.setContentPane(board);
     	 this.setVisible(true);
+    	 BreadBoard board=new BreadBoard();
+    	 board.setLayout(null);
+    	 this.setContentPane(board);
     	 Move move = new Move();
     	 board.addMouseMotionListener(move);
     	 Click click = new Click();
@@ -111,7 +113,6 @@ public class WorkspaceGUI extends JFrame {
     		 Graphics2D g2d=(Graphics2D)g;
     		 g2d.setColor(Color.decode("#1f1f1f"));
     		 g2d.fillRect(0, 0,900, 675);
-    		 
     		 for(int i=0; i<27;i++)
     		 {
     			 for(int j=0; j<36;j++)
@@ -166,8 +167,10 @@ public class WorkspaceGUI extends JFrame {
      							g.drawImage(componentImg, j*25 , i*25,24,24,null);
      					     }
 	    							 String val=(comp[i][j].getType()=="Resistor")?String.valueOf(comp[i][j].getResistance()+" Ω"):String.valueOf(comp[i][j].getVoltage()+" V");
+	    							 
 	    							 g.setColor(Color.decode("#77bdfb"));
-	    							 Font stringFont = new Font( "SansSerif", Font.PLAIN, 12 );
+	    							 Font stringFont = new Font( "SansSerif", Font.PLAIN, 14 );
+	    							 g.setFont(stringFont);
 	    							 if(comp[i][j].getType()!="ground")
 	    							 {
 	    								 if(comp[i][j].getAngle()==0 || comp[i][j].getAngle()==180)
@@ -187,8 +190,7 @@ public class WorkspaceGUI extends JFrame {
     				 }
         		 }
     		 }
-    		 
-    		 Line line=new Line(g,linelist,path);
+    		 Line line=new Line(g,linelist,path); 
     		 CircuitsDiagramPanel cp =new CircuitsDiagramPanel(g);
     		 PropertyPanel vp=new PropertyPanel(g);
     	 }
@@ -742,7 +744,9 @@ public class WorkspaceGUI extends JFrame {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			// TODO Auto-generated method stub
-			NodalAnalysis nodalAnalysis=new NodalAnalysis(complist);
+			
+				NodalAnalysis nodalAnalysis=new NodalAnalysis(complist);
+			
 		}
 
 		@Override

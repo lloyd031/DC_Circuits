@@ -49,15 +49,47 @@ public class NodalAnalysis {
 		}
 		
 		//if a branch has only voltage source and is connected to ground, the node voltage will be equal to the branch voltage
+		//starting with branches directly connected to the ground node
 		for(Component i:branchlist)
 		{
-			if(i.getVoltage()!=0 && i.getCurrent()==0 && i.getResistance()==0 && i.getConnection().getLast().getReference()==true)
+			if(i.getVoltage()!=0 && i.getCurrent()==0 && i.getResistance()==0 &&  i.getConnection().getLast().getReference()==true)
 			{
-				i.getConnection().getFirst().setVoltage(i.getVoltage());
-				node.remove(i.getConnection().getFirst());
+					
+					i.getConnection().getFirst().setVoltage(i.getVoltage());
+					node.remove(i.getConnection().getFirst());
+				
+			}
+		}
+		//now to branches not directly connected to ground
+		for(Component i:branchlist)
+		{
+			if(i.getVoltage()!=0 && i.getCurrent()==0 && i.getResistance()==0 &&  i.getConnection().getLast().getReference()==false)
+			{
+				if(i.getConnection().getLast().getVoltage()!=0 && i.getConnection().getFirst().getVoltage()==0)
+				{
+					i.getConnection().getFirst().setVoltage(i.getVoltage());
+					i.getConnection().getFirst().setVoltage(i.getConnection().getFirst().getVoltage()+i.getConnection().getLast().getVoltage());
+					node.remove(i.getConnection().getFirst());
+				}else if(i.getConnection().getFirst().getVoltage()!=0 && i.getConnection().getLast().getVoltage()==0)
+				{
+					i.getConnection().getLast().setVoltage(i.getVoltage()*-1);
+					i.getConnection().getLast().setVoltage(i.getConnection().getLast().getVoltage()+ i.getConnection().getFirst().getVoltage());
+					node.remove(i.getConnection().getLast());
+				}else if(i.getConnection().getFirst().getVoltage()==0 && i.getConnection().getLast().getVoltage()==0)
+				{
+					System.out.println("error");
+				}
+					
 			}
 		}
 		
+		for(Component i:comp)
+		{
+			if(i.getVoltage()!=0 && i.getType()=="wire")
+			{
+				System.out.println(i.getVoltage());
+			}
+		}
 		//for printing component attributes purposes
 		/*for(Component i:comp)
 		{
