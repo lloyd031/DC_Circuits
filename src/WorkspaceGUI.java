@@ -21,6 +21,8 @@ public class WorkspaceGUI extends JFrame {
 	public char originarm,targetarm;  
 	public Path origin;
 	public Path target;
+	public boolean hasground;
+	public LinkedList<String> errormsg=new LinkedList<String>();
 	public LinkedList<Path> line=new LinkedList<Path>();
 	public LinkedList<LinkedList<Path>> linelist = new LinkedList<LinkedList<Path>>();
 	Component selectedComp=null;
@@ -33,6 +35,7 @@ public class WorkspaceGUI extends JFrame {
 	String[] propertyname= {"Type","name","Angle","branch", "current","voltage","Resis..."};
 	LinkedList<JTextField> vallist=new LinkedList<JTextField>();
 	JLabel rotate;
+	NodalAnalysis nodalAnalysis=new NodalAnalysis();
 	public WorkspaceGUI()
      { 
 		 this.setTitle("DC-Circuit Analysis");
@@ -744,9 +747,62 @@ public class WorkspaceGUI extends JFrame {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			// TODO Auto-generated method stub
-			
-				NodalAnalysis nodalAnalysis=new NodalAnalysis(complist);
-			
+			//checking for errors
+			if(!complist.isEmpty())
+			{
+				for(Component i: complist) 
+				{
+					if(i.getReference()==true)
+					{
+						hasground=true;
+					}
+					
+					if((i.getType()=="V-source" && i.getVoltage()==0) || i.getType()=="Resistor" && i.getResistance()==0)
+					{
+						errormsg.add( i.getType()+"("+i.getName()+") "+"has 0 value ");
+					}
+					if(i.getConnection().size()<2)
+					{
+						errormsg.add("connection incomplete "+ i.getType()+"("+i.getName()+") ");
+					}
+				}
+				   if(hasground==true && errormsg.isEmpty())
+				   {
+					   nodalAnalysis.setComp(complist);
+					   nodalAnalysis.determineRealNode();
+					   if( nodalAnalysis.getNode().size()==0)
+					   {
+						  System.out.println("0 node");
+					   }else
+					   {
+						   nodalAnalysis.creatingBranches();
+						   nodalAnalysis.solvingForTotalVR();
+						   nodalAnalysis.assignVoltagesToNodes();
+						   if(nodalAnalysis.getErr()!=null)
+						   {
+							   System.out.println(nodalAnalysis.getErr());
+						   }else
+						   {
+							   nodalAnalysis.setKVLLength();
+							   nodalAnalysis.runKCL();
+							   nodalAnalysis.getKCL();
+						   }
+					   }
+				   }else
+				   {
+					   if(hasground==false)
+					   {
+						   System.out.println("reference node: Null");
+					   }
+					   for(String i:errormsg)
+					   {
+						   System.out.println(i);
+					   }
+				   }
+			}else
+			{
+				System.out.println("error: Blank circuit");
+			}
 		}
 
 		@Override
