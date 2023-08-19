@@ -219,7 +219,7 @@ public class NodalAnalysis {
 				}
 	}
 	// method for solving the total resistance and voltages for each branch
-	static void solveVR(Component element, Component prev, Component branch)
+	 void solveVR(Component element, Component prev, Component branch)
 	{
 		
 		if(element.getType().equals("Resistor"))
@@ -235,6 +235,22 @@ public class NodalAnalysis {
 			{
 				branch.setVoltage(branch.getVoltage()-element.getVoltage());
 			}
+		}else if(element.getType().equals("Current-source"))
+		{
+			if(branch.getCurrent()==0)
+			{
+				if(element.getTail().equals(prev))
+				{
+					branch.setCurrent(branch.getCurrent()+element.getCurrent());
+				}else
+				{
+					branch.setCurrent(branch.getCurrent()-element.getCurrent());
+				}
+			}else
+			{
+				errmsg="Error: Series current source detected";
+			}
+			
 		}
 		if(element!=branch.getConnection().getFirst())
 		{

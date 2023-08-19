@@ -40,7 +40,7 @@ public class Component {
   }
  String getName()
  {
-	 if(this.getType()=="V-source")
+	 if(this.getType()=="Voltage")
 	 {
 		 if(this.name==null)
 		 {

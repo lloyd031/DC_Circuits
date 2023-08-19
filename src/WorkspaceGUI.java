@@ -321,7 +321,7 @@ public class WorkspaceGUI extends JFrame {
 				{
 					selectedComp.setResistance(0);
 				}
-			} else if(selectedComp.getType()=="V-source")
+			} else if(selectedComp.getType()=="Voltage")
 			{
 				name="V";
 				if(vallist.get(5).getText()!=null)
@@ -757,7 +757,7 @@ public class WorkspaceGUI extends JFrame {
 						hasground=true;
 					}
 					
-					if((i.getType()=="V-source" && i.getVoltage()==0) || i.getType()=="Resistor" && i.getResistance()==0)
+					if((i.getType()=="Voltage" && i.getVoltage()==0) || i.getType()=="Resistor" && i.getResistance()==0)
 					{
 						errormsg.add( i.getType()+"("+i.getName()+") "+"has 0 value ");
 					}
@@ -777,16 +777,23 @@ public class WorkspaceGUI extends JFrame {
 					   {
 						   nodalAnalysis.creatingBranches();
 						   nodalAnalysis.solvingForTotalVR();
-						   nodalAnalysis.assignVoltagesToNodes();
-						   if(nodalAnalysis.getErr()!=null)
+						   if(nodalAnalysis.getErr()==null)
 						   {
-							   System.out.println(nodalAnalysis.getErr());
+							   nodalAnalysis.assignVoltagesToNodes();
+							   if(nodalAnalysis.getErr()!=null)
+							   {
+								   System.out.println(nodalAnalysis.getErr());
+							   }else
+							   {
+								   nodalAnalysis.setKVLLength();
+								   nodalAnalysis.runKCL();
+								   nodalAnalysis.getKCL();
+							   }
 						   }else
 						   {
-							   nodalAnalysis.setKVLLength();
-							   nodalAnalysis.runKCL();
-							   nodalAnalysis.getKCL();
+							   System.out.println(nodalAnalysis.getErr());
 						   }
+						   
 					   }
 				   }else
 				   {
@@ -836,7 +843,7 @@ public class WorkspaceGUI extends JFrame {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			// TODO Auto-generated method stub
-			component="V-source";
+			component="Voltage";
 		}
 
 		@Override
@@ -951,7 +958,7 @@ public class WorkspaceGUI extends JFrame {
 			 if(selectedComp.getType()!="Resistor")
 			 {
 				 vallist.getLast().disable();
-			 }else if(selectedComp.getType()!="V-source")
+			 }else if(selectedComp.getType()!="Voltage")
 			 {
 				 vallist.get(5).disable();;
 				
@@ -961,7 +968,7 @@ public class WorkspaceGUI extends JFrame {
 			 {
 				 vallist.getLast().enable(); 
 				 vallist.getLast().setText(" "+String.valueOf(selectedComp.getResistance()));
-			 }else if(selectedComp.getType()=="V-source")
+			 }else if(selectedComp.getType()=="Voltage")
 			 {
 				 vallist.get(5).enable();
 				 vallist.get(5).setText(" "+String.valueOf(selectedComp.getVoltage()));
